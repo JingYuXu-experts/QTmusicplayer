@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Main.qml</file>
+        <file>Sidebar.qml</file>
+        <file>TopBar.qml</file>
+        <file>PlayerBar.qml</file>
+        <file>HomeView.qml</file>
+        <file>SearchView.qml</file>
+        <file>LyricsView.qml</file>
+        <file>MvView.qml</file>
+        <file>ChatView.qml</file>
+        <file>LibraryView.qml</file>
+        <file>default_cover.svg</file>
+    </qresource>
+</RCC>

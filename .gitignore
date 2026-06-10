@@ -1,0 +1,8 @@
+AppleMusic/build/
+AppleMusic/.qtcreator/
+AppleMusic/.qtc_clangd/
+AppleMusic/*.user
+AppleMusic/*.user.*
+*.autosave
+*.tmp
+*.log
