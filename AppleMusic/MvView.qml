@@ -23,6 +23,7 @@ Rectangle {
         if (visible) {
             mvSource = musicMgr.getMvPath(musicMgr.currentTitle)
             if (mvSource !== "") {
+                musicMgr.stopPlayback()
                 videoPlayer.source = mvSource
                 videoPlayer.play()
             }

@@ -52,6 +52,7 @@ public:
     Q_INVOKABLE void search(const QString &query);
     Q_INVOKABLE void playTrack(const QString &title, const QString &artist, const QString &cover, const QString &url);
     Q_INVOKABLE void togglePlayPause();
+    Q_INVOKABLE void stopPlayback();
     Q_INVOKABLE void seek(qint64 position);
     void setVolume(float volume);
 

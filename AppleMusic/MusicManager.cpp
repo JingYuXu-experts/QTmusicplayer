@@ -538,6 +538,16 @@ void MusicManager::togglePlayPause()
     m_player->playbackState() == QMediaPlayer::PlayingState ? m_player->pause() : m_player->play();
 }
 
+void MusicManager::stopPlayback()
+{
+    if (m_player->playbackState() == QMediaPlayer::StoppedState) {
+        return;
+    }
+
+    m_player->stop();
+    emit playbackStateChanged();
+}
+
 void MusicManager::seek(qint64 position)
 {
     m_player->setPosition(position);

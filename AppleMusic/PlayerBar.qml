@@ -177,7 +177,15 @@ Rectangle {
             font.bold: true
             font.pixelSize: 12
             anchors.verticalCenter: parent.verticalCenter
-            MouseArea { anchors.fill: parent; onClicked: if (musicMgr.getMvPath(musicMgr.currentTitle) !== "") window.currentViewIndex = 4 }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    if (musicMgr.getMvPath(musicMgr.currentTitle) !== "") {
+                        musicMgr.stopPlayback()
+                        window.currentViewIndex = 4
+                    }
+                }
+            }
         }
 
         Text {
