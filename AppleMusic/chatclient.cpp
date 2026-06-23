@@ -1,4 +1,4 @@
-#include "ChatClient.h"
+#include "chatclient.h"
 #include <QDateTime>
 
 ChatClient::ChatClient(QObject *parent) : QObject(parent)

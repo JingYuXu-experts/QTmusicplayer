@@ -4,7 +4,8 @@
 #include <QQuickStyle>
 #include "MusicManager.h"
 #include "ChatManager.h"
-#include "ChatServer.h" // 【新增】
+#include "chatserver.h"
+#include "DifyClient.h"
 
 using namespace Qt::StringLiterals;
 
@@ -13,17 +14,17 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQuickStyle::setStyle("Basic");
 
-    // 1. 启动服务器 (在后台运行)
     ChatServer server;
     server.startServer();
 
-    // 2. 启动客户端业务逻辑
     MusicManager musicManager;
     ChatManager chatManager;
+    DifyClient difyClient;
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("musicMgr", &musicManager);
     engine.rootContext()->setContextProperty("chatClient", &chatManager);
+    engine.rootContext()->setContextProperty("difyClient", &difyClient);
 
     const QUrl url(u"qrc:/Main.qml"_s);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

@@ -1,4 +1,4 @@
-#include "ChatServer.h"
+#include "chatserver.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRandomGenerator>

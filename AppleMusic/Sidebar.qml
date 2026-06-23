@@ -96,12 +96,51 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 12
 
-            Text { text: "SOCIAL"; color: "#666"; font.pixelSize: 12; font.bold: true }
+            Text { text: "ASSISTANTS"; color: "#666"; font.pixelSize: 12; font.bold: true }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 48
+                color: window.currentViewIndex === 6 ? "#222" : "#161616"
+                radius: 8
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 12
+                    spacing: 12
+                    Rectangle {
+                        Layout.preferredWidth: 32
+                        Layout.preferredHeight: 32
+                        radius: 16
+                        color: "#8B5CF6"
+                        Text {
+                            text: "AI"
+                            color: "white"
+                            anchors.centerIn: parent
+                            font.bold: true
+                            font.pixelSize: 11
+                        }
+                    }
+                    Column {
+                        Text { text: "AI 助手"; color: "white"; font.bold: true; font.pixelSize: 14 }
+                        Text {
+                            text: difyClient.configured ? "Dify 智能问答" : "配置不可用"
+                            color: difyClient.configured ? "#A78BFA" : "#FF6B6B"
+                            font.pixelSize: 11
+                        }
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: window.currentViewIndex = 6
+                }
+            }
 
             Rectangle {
                 Layout.fillWidth: true
                 height: 48
-                color: "#161616"
+                color: window.currentViewIndex === 5 ? "#222" : "#161616"
                 radius: 8
 
                 RowLayout {

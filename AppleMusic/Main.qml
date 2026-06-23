@@ -8,7 +8,7 @@ ApplicationWindow {
     title: "CDUESTC MUSIC"
     color: "#030303"
 
-    // 0:首页, 1:搜索, 2:媒体库, 3:歌词, 4:MV, 5:聊天室
+    // 0:首页, 1:搜索, 2:媒体库, 3:歌词, 4:MV, 5:聊天室, 6:AI助手
     property int currentViewIndex: 0
 
     ColumnLayout {
@@ -44,8 +44,8 @@ ApplicationWindow {
                 LyricsView {}    // 3: 歌词
                 MvView {}        // 4: MV
 
-                // 【核心新增】聊天室页面 (Index 5)
                 ChatView {}
+                DifyView {}
             }
         }
 
