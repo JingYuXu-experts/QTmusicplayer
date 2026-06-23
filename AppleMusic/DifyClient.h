@@ -40,7 +40,9 @@ private:
     void handleReply(QNetworkReply *reply);
     void setBusy(bool busy);
     void setStatusText(const QString &statusText);
+    QString endpointPath() const;
     QString outputText(const QJsonValue &value) const;
+    QString chatAnswerText(const QJsonObject &root) const;
     QString responseErrorMessage(const QByteArray &payload) const;
 
     QNetworkAccessManager *m_network = nullptr;
@@ -48,7 +50,10 @@ private:
     QVariantList m_messages;
     QString m_apiBaseUrl;
     QString m_apiKey;
-    QString m_inputKey = QStringLiteral("clear_query");
+    QString m_appMode = QStringLiteral("chat");
+    QString m_inputKey = QStringLiteral("user_query");
+    QString m_contextKey = QStringLiteral("player_context");
+    QString m_conversationId;
     QString m_userId;
     QString m_statusText;
     int m_timeoutMs = 95000;

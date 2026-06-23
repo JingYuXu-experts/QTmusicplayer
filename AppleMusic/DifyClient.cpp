@@ -72,7 +72,7 @@ void DifyClient::sendPrompt(const QString &prompt)
     while (endpoint.endsWith('/')) {
         endpoint.chop(1);
     }
-    endpoint += QStringLiteral("/workflows/run");
+    endpoint += endpointPath();
 
     QNetworkRequest request{QUrl(endpoint)};
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
@@ -81,10 +81,20 @@ void DifyClient::sendPrompt(const QString &prompt)
                          QNetworkRequest::NoLessSafeRedirectPolicy);
     request.setTransferTimeout(m_timeoutMs);
 
-    QJsonObject inputs;
-    inputs.insert(m_inputKey, trimmedPrompt);
-
     QJsonObject body;
+    QJsonObject inputs;
+    if (m_appMode == QStringLiteral("workflow")) {
+        inputs.insert(m_inputKey, trimmedPrompt);
+    } else {
+        if (!m_contextKey.isEmpty()) {
+            inputs.insert(m_contextKey, QString());
+        }
+        body.insert(QStringLiteral("query"), trimmedPrompt);
+        if (!m_conversationId.isEmpty()) {
+            body.insert(QStringLiteral("conversation_id"), m_conversationId);
+        }
+    }
+
     body.insert(QStringLiteral("inputs"), inputs);
     body.insert(QStringLiteral("response_mode"), QStringLiteral("blocking"));
     body.insert(QStringLiteral("user"), m_userId);
@@ -115,6 +125,7 @@ void DifyClient::clearHistory()
     }
 
     m_messages.clear();
+    m_conversationId.clear();
     emit messagesChanged();
     setStatusText(m_configured ? QStringLiteral("AI 助手已就绪")
                                : QStringLiteral("Dify 配置不可用"));
@@ -141,11 +152,26 @@ void DifyClient::loadConfiguration()
         m_apiKey = settings.value(QStringLiteral("Dify/apiKey")).toString().trimmed();
     }
 
-    m_inputKey = settings.value(QStringLiteral("Dify/inputKey"), QStringLiteral("clear_query"))
+    m_appMode = settings.value(QStringLiteral("Dify/appMode"), QStringLiteral("chat"))
+                    .toString()
+                    .trimmed()
+                    .toLower();
+    if (m_appMode != QStringLiteral("workflow")) {
+        m_appMode = QStringLiteral("chat");
+    }
+
+    m_inputKey = settings.value(QStringLiteral("Dify/inputKey"), QStringLiteral("user_query"))
                      .toString()
                      .trimmed();
     if (m_inputKey.isEmpty()) {
-        m_inputKey = QStringLiteral("clear_query");
+        m_inputKey = QStringLiteral("user_query");
+    }
+
+    m_contextKey = settings.value(QStringLiteral("Dify/contextKey"), QStringLiteral("player_context"))
+                       .toString()
+                       .trimmed();
+    if (m_contextKey.isEmpty()) {
+        m_contextKey = QStringLiteral("player_context");
     }
 
     m_timeoutMs = settings.value(QStringLiteral("Dify/timeoutMs"), 95000).toInt();
@@ -249,23 +275,38 @@ void DifyClient::handleReply(QNetworkReply *reply)
         errorMessage = QStringLiteral("Dify 返回了无法解析的数据。");
     } else {
         const QJsonObject root = document.object();
-        const QJsonObject data = root.value(QStringLiteral("data")).toObject();
-        const QString workflowStatus = data.value(QStringLiteral("status")).toString();
-        const QString workflowError = data.value(QStringLiteral("error")).toString().trimmed();
-
-        if (!workflowError.isEmpty()
-            || (!workflowStatus.isEmpty() && workflowStatus != QStringLiteral("succeeded"))) {
-            errorMessage = workflowError.isEmpty()
-                               ? QStringLiteral("Dify 工作流执行失败：%1").arg(workflowStatus)
-                               : QStringLiteral("Dify 工作流执行失败：%1").arg(workflowError);
-        } else {
-            const QString answer = outputText(data.value(QStringLiteral("outputs")));
+        if (m_appMode == QStringLiteral("chat")) {
+            const QString answer = chatAnswerText(root);
             if (answer.isEmpty()) {
-                errorMessage = QStringLiteral("Dify 工作流已完成，但没有返回可显示的文本。");
+                errorMessage = responseErrorMessage(payload);
+                if (errorMessage.isEmpty()) {
+                    errorMessage = QStringLiteral("Dify 对话已完成，但没有返回可显示的文本。");
+                }
             } else {
+                m_conversationId = root.value(QStringLiteral("conversation_id")).toString(m_conversationId);
                 appendMessage(QStringLiteral("assistant"), answer);
                 setStatusText(QStringLiteral("AI 助手已就绪"));
                 return;
+            }
+        } else {
+            const QJsonObject data = root.value(QStringLiteral("data")).toObject();
+            const QString workflowStatus = data.value(QStringLiteral("status")).toString();
+            const QString workflowError = data.value(QStringLiteral("error")).toString().trimmed();
+
+            if (!workflowError.isEmpty()
+                || (!workflowStatus.isEmpty() && workflowStatus != QStringLiteral("succeeded"))) {
+                errorMessage = workflowError.isEmpty()
+                                   ? QStringLiteral("Dify 工作流执行失败：%1").arg(workflowStatus)
+                                   : QStringLiteral("Dify 工作流执行失败：%1").arg(workflowError);
+            } else {
+                const QString answer = outputText(data.value(QStringLiteral("outputs")));
+                if (answer.isEmpty()) {
+                    errorMessage = QStringLiteral("Dify 工作流已完成，但没有返回可显示的文本。");
+                } else {
+                    appendMessage(QStringLiteral("assistant"), answer);
+                    setStatusText(QStringLiteral("AI 助手已就绪"));
+                    return;
+                }
             }
         }
     }
@@ -292,12 +333,30 @@ void DifyClient::setStatusText(const QString &statusText)
     emit statusTextChanged();
 }
 
+QString DifyClient::endpointPath() const
+{
+    return m_appMode == QStringLiteral("workflow")
+               ? QStringLiteral("/workflows/run")
+               : QStringLiteral("/chat-messages");
+}
+
 QString DifyClient::outputText(const QJsonValue &value) const
 {
     QStringList values;
     QSet<QString> seen;
     collectTextValues(value, values, seen);
     return values.join(QStringLiteral("\n\n")).trimmed();
+}
+
+QString DifyClient::chatAnswerText(const QJsonObject &root) const
+{
+    const QString answer = root.value(QStringLiteral("answer")).toString().trimmed();
+    if (!answer.isEmpty()) {
+        return answer;
+    }
+
+    const QJsonObject data = root.value(QStringLiteral("data")).toObject();
+    return data.value(QStringLiteral("answer")).toString().trimmed();
 }
 
 QString DifyClient::responseErrorMessage(const QByteArray &payload) const
