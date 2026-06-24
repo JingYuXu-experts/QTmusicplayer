@@ -73,6 +73,21 @@ Rectangle {
             MouseArea { anchors.fill: parent; onClicked: window.currentViewIndex = 2 }
         }
 
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 48
+            radius: 8
+            color: window.currentViewIndex === 7 ? "#222" : "transparent"
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 15
+                spacing: 15
+                Text { text: "A"; color: window.currentViewIndex === 7 ? "white" : "#CCC"; font.pixelSize: 20 }
+                Text { text: "Artists"; color: window.currentViewIndex === 7 ? "white" : "#CCC"; font.pixelSize: 15; font.bold: true }
+            }
+            MouseArea { anchors.fill: parent; onClicked: window.currentViewIndex = 7 }
+        }
+
         Item { Layout.preferredHeight: 10 }
         Rectangle { Layout.fillWidth: true; height: 1; color: "#333" }
         Item { Layout.preferredHeight: 10 }

@@ -7,6 +7,11 @@ Rectangle {
     color: "#000000"
 
     property string searchText: ""
+    property int indexColumnWidth: 34
+    property int artistColumnWidth: 170
+    property int albumColumnWidth: 220
+    property int durationColumnWidth: 76
+    property int actionColumnWidth: 62
 
     onSearchTextChanged: musicMgr.search(searchText === "" ? "all" : searchText)
 
@@ -32,12 +37,14 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 10
 
-            Text { text: "#"; color: "#666"; width: 30; font.pixelSize: 13 }
-            Text { text: "Title"; color: "#666"; Layout.preferredWidth: 250; font.pixelSize: 13 }
-            Text { text: "Artist"; color: "#666"; Layout.preferredWidth: 150; font.pixelSize: 13 }
-            Text { text: "Album"; color: "#666"; Layout.preferredWidth: 150; font.pixelSize: 13 }
-            Text { text: "Duration"; color: "#666"; Layout.preferredWidth: 70; font.pixelSize: 13 }
-            Item { Layout.fillWidth: true }
+            Item { Layout.preferredWidth: 10 }
+            Text { text: "#"; color: "#666"; Layout.preferredWidth: searchRoot.indexColumnWidth; font.pixelSize: 13 }
+            Text { text: "Title"; color: "#666"; Layout.fillWidth: true; font.pixelSize: 13 }
+            Text { text: "Artist"; color: "#666"; Layout.preferredWidth: searchRoot.artistColumnWidth; font.pixelSize: 13 }
+            Text { text: "Album"; color: "#666"; Layout.preferredWidth: searchRoot.albumColumnWidth; font.pixelSize: 13 }
+            Text { text: "Duration"; color: "#666"; Layout.preferredWidth: searchRoot.durationColumnWidth; font.pixelSize: 13; horizontalAlignment: Text.AlignRight }
+            Item { Layout.preferredWidth: searchRoot.actionColumnWidth }
+            Item { Layout.preferredWidth: 10 }
         }
 
         Rectangle { Layout.fillWidth: true; height: 1; color: "#222" }
@@ -68,10 +75,15 @@ Rectangle {
                     anchors.rightMargin: 10
                     spacing: 10
 
-                    Text { text: index + 1; color: "#666"; width: 30 }
+                    Text {
+                        text: index + 1
+                        color: "#666"
+                        Layout.preferredWidth: searchRoot.indexColumnWidth
+                        horizontalAlignment: Text.AlignLeft
+                    }
 
                     RowLayout {
-                        Layout.preferredWidth: 250
+                        Layout.fillWidth: true
                         spacing: 15
 
                         Image {
@@ -99,7 +111,15 @@ Rectangle {
                         color: "#AAA"
                         font.pixelSize: 13
                         elide: Text.ElideRight
-                        Layout.preferredWidth: 150
+                        Layout.preferredWidth: searchRoot.artistColumnWidth
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                window.selectedArtistName = modelData.artist || ""
+                                window.currentViewIndex = 7
+                            }
+                        }
                     }
 
                     Text {
@@ -107,19 +127,19 @@ Rectangle {
                         color: "#AAA"
                         font.pixelSize: 13
                         elide: Text.ElideRight
-                        Layout.preferredWidth: 150
+                        Layout.preferredWidth: searchRoot.albumColumnWidth
                     }
 
                     Text {
                         text: modelData.duration || "--:--"
                         color: "#AAA"
                         font.pixelSize: 13
-                        Layout.preferredWidth: 70
+                        Layout.preferredWidth: searchRoot.durationColumnWidth
                         horizontalAlignment: Text.AlignRight
                     }
 
                     Item {
-                        Layout.fillWidth: true
+                        Layout.preferredWidth: searchRoot.actionColumnWidth
                         Text {
                             text: "Play"
                             color: "white"

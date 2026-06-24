@@ -15,6 +15,93 @@ Rectangle {
         return m + ":" + (s < 10 ? "0" + s : s)
     }
 
+    Popup {
+        id: audioEffectPopup
+        x: Math.min(root.width - width - 20, Math.max(20, audioEffectButton.mapToItem(root, 0, 0).x))
+        y: -height - 10
+        width: 310
+        height: 286
+        padding: 0
+        modal: false
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        background: Rectangle {
+            color: "#181818"
+            radius: 12
+            border.color: "#343434"
+            border.width: 1
+        }
+
+        contentItem: Column {
+            padding: 12
+            spacing: 4
+
+            Text {
+                text: "选择音效"
+                color: "white"
+                font.pixelSize: 16
+                font.bold: true
+                leftPadding: 8
+                bottomPadding: 6
+            }
+
+            Repeater {
+                model: [
+                    { mode: 0, name: "标准", detail: "保留歌曲原始声音" },
+                    { mode: 1, name: "演唱会", detail: "增强空间感、声场与混响" },
+                    { mode: 2, name: "纯净人声", detail: "突出立体声中置人声" },
+                    { mode: 3, name: "纯伴奏", detail: "消除中置声部，弱化主唱" }
+                ]
+
+                delegate: Rectangle {
+                    width: parent.width - 24
+                    height: 52
+                    radius: 8
+                    color: musicMgr.audioEffect === modelData.mode ? "#3A2024" : effectMouse.containsMouse ? "#282828" : "transparent"
+
+                    Column {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 3
+
+                        Text {
+                            text: modelData.name
+                            color: musicMgr.audioEffect === modelData.mode ? "#FF6B73" : "white"
+                            font.pixelSize: 14
+                            font.bold: musicMgr.audioEffect === modelData.mode
+                        }
+                        Text {
+                            text: modelData.detail
+                            color: "#8E8E8E"
+                            font.pixelSize: 11
+                        }
+                    }
+
+                    Text {
+                        anchors.right: parent.right
+                        anchors.rightMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "✓"
+                        color: "#FF5964"
+                        font.pixelSize: 16
+                        visible: musicMgr.audioEffect === modelData.mode
+                    }
+
+                    MouseArea {
+                        id: effectMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            musicMgr.audioEffect = modelData.mode
+                            audioEffectPopup.close()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Drawer {
         id: playlistDrawer
         width: 300
@@ -97,6 +184,29 @@ Rectangle {
             color: "#CCC"
             font.pixelSize: 14
             MouseArea { anchors.fill: parent; onClicked: musicMgr.switchPlaybackMode() }
+        }
+
+        Rectangle {
+            id: audioEffectButton
+            width: 106
+            height: 32
+            radius: 16
+            color: musicMgr.audioEffect === 0 ? "#303030" : "#51252A"
+            border.color: musicMgr.audioEffect === 0 ? "#454545" : "#A8424B"
+            anchors.verticalCenter: parent.verticalCenter
+
+            Text {
+                anchors.centerIn: parent
+                text: "音效: " + musicMgr.audioEffectName
+                color: musicMgr.audioEffect === 0 ? "#D0D0D0" : "#FF8990"
+                font.pixelSize: 12
+                font.bold: musicMgr.audioEffect !== 0
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: audioEffectPopup.opened ? audioEffectPopup.close() : audioEffectPopup.open()
+            }
         }
 
         Text {
@@ -207,6 +317,7 @@ Rectangle {
 
         Text { text: "Vol"; color: "#AAA"; font.pixelSize: 14; anchors.verticalCenter: parent.verticalCenter }
         Slider {
+            id: volumeSlider
             from: 0
             to: 100
             value: pressed ? value : musicMgr.volume * 100
@@ -219,7 +330,7 @@ Rectangle {
                 radius: 2
                 color: "#555"
                 anchors.verticalCenter: parent.verticalCenter
-                Rectangle { width: parent.parent.visualPosition * parent.width; height: 4; radius: 2; color: "white" }
+                Rectangle { width: volumeSlider.visualPosition * parent.width; height: 4; radius: 2; color: "white" }
             }
             handle: Item {}
         }

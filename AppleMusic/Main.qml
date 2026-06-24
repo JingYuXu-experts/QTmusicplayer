@@ -10,6 +10,7 @@ ApplicationWindow {
 
     // 0:首页, 1:搜索, 2:媒体库, 3:歌词, 4:MV, 5:聊天室, 6:AI助手
     property int currentViewIndex: 0
+    property string selectedArtistName: "Taylor Swift"
 
     ColumnLayout {
         anchors.fill: parent
@@ -46,6 +47,7 @@ ApplicationWindow {
 
                 ChatView {}
                 DifyView {}
+                ArtistView {}
             }
         }
 

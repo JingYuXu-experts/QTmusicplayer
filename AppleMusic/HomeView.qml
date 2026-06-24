@@ -114,6 +114,14 @@ ScrollView {
                         font.pixelSize: 14
                         elide: Text.ElideRight
                         Layout.fillWidth: true
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                window.selectedArtistName = modelData.artist || ""
+                                window.currentViewIndex = 7
+                            }
+                        }
                     }
                 }
             }

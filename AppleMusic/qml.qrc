@@ -10,6 +10,7 @@
         <file>MvView.qml</file>
         <file>ChatView.qml</file>
         <file>DifyView.qml</file>
+        <file>ArtistView.qml</file>
         <file>LibraryView.qml</file>
         <file>default_cover.svg</file>
     </qresource>

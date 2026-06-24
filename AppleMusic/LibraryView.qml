@@ -95,7 +95,21 @@ Rectangle {
 
                                 Column {
                                     Text { text: modelData.title; color: "white"; font.bold: true; elide: Text.ElideRight; width: 190 }
-                                    Text { text: modelData.artist; color: "#AAA"; font.pixelSize: 12; elide: Text.ElideRight; width: 190 }
+                                    Text {
+                                        text: modelData.artist
+                                        color: "#AAA"
+                                        font.pixelSize: 12
+                                        elide: Text.ElideRight
+                                        width: 190
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: {
+                                                window.selectedArtistName = modelData.artist || ""
+                                                window.currentViewIndex = 7
+                                            }
+                                        }
+                                    }
                                 }
                             }
 
